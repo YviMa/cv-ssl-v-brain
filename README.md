@@ -3,6 +3,7 @@ Comparing semantic representations of biologically inspired self-supervised mode
 # Structure
 Overview over most important subfolders
 
+```
 cv-ssl-v-brain/
 ├─ configs/ # yaml config files for running pipeline.py
 │
@@ -10,12 +11,13 @@ cv-ssl-v-brain/
 │ └─ pipeline.py # script for running RSA/encoding steps
 | └─ preprocess.py # script for bringing NSD data into right format for RSA
 | └─ utils.py # utilities for pipeline.py
-| └─ inspect.ipynb # for inspecting results and plotting
 │
 ├─ cv_ssl/ # Tim's code 
 │ 
 ├─ results/ # one subfolder per model, same naming convention as Tim
-
+|
+└─inspect.ipynb # for inspecting results and plotting
+```
 # Results Format
 Each folder results/ is for **one** model, both RSA and linear encoding. It includes:
 - copy of the yaml config file called "config.yaml"
