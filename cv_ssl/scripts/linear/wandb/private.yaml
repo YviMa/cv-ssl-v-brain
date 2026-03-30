@@ -1,0 +1,5 @@
+enabled: True
+entity: None
+project: "EgocentricVision"
+group: null
+job_type: "linear_probe"

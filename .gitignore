@@ -1,0 +1,17 @@
+*.log
+.bash_history
+.bash_logout
+.bashrc
+.profile
+.python_history
+.wget-hsts
+.cache
+.conda
+.config
+.dotnet
+.ipython
+.local
+.nv
+.vscode-server
+tmp/
+__pycache__/
