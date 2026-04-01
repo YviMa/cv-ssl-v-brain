@@ -89,6 +89,7 @@ def summarize_subjects(shared_rois, eval_df):
         roi_dfs.append(roi_df)
 
     eval_df = pd.concat(roi_dfs)
+    eval_df.reset_index(inplace=True, drop=True)
     return eval_df
 
 def fix_naming(dataframe):
