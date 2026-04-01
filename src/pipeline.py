@@ -26,7 +26,7 @@ with open(config_path, 'r') as f:
 
 # loading the model
 model_config = config["model"]
-model_dir = model_config["directory"]
+model_dir = model_config.pop("directory")
 model_name = model_config["name"]
 time_window = model_config["time_window"]
 crop_size = model_config["crop_size"]
@@ -70,7 +70,7 @@ with open(join(results_dir, "config.yaml"), 'w') as f:
 metadata = {**model_config, "layers": layers_to_extract}
 metadata_key = 'custom_meta'
 
-if analysis_config["rsa"]["execute"] == True:
+if analysis_config["rsa"].pop("execute"):
     evaluation =  RSA(rdm_path, brain_rdms, model_name=dir_name, squared=False)
     distance_metric = analysis_config["rsa"]["distance_metric"]
     eval_df = evaluation.evaluate(distance_metric=distance_metric)
@@ -78,6 +78,7 @@ if analysis_config["rsa"]["execute"] == True:
     eval_table = pa.Table.from_pandas(eval_df)
 
     metadata["evaluation"]="rsa"
+    metadata = {**metadata, **analysis_config["rsa"]}
     metadata_json = json.dumps(metadata)
     original_meta = eval_table.schema.metadata
     combined_meta = {metadata_key.encode(): metadata_json.encode(), **original_meta}
@@ -88,7 +89,7 @@ if analysis_config["rsa"]["execute"] == True:
     with open(join(results_dir,"RSA_instance.pkl"), 'wb') as f:
         pickle.dump(evaluation, f)
 
-if analysis_config["reg"]["execute"]==True:
+if analysis_config["reg"].pop("execute"):
     reg_config = analysis_config["reg"]
     roi_paths = [join(data_config["data_dir"],"subj0"+str(j), "rois") for j in range(1,9)]
 
@@ -110,6 +111,7 @@ if analysis_config["reg"]["execute"]==True:
 
     eval_table = pa.Table.from_pandas(eval_df_all_subj)
     metadata["evaluation"]="reg"
+    metadata = {**metadata, **analysis_config["reg"]}
     metadata_json = json.dumps(metadata)
     original_meta = eval_table.schema.metadata
     combined_meta = {metadata_key.encode(): metadata_json.encode(), **original_meta}
