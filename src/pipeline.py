@@ -51,6 +51,10 @@ layers_to_extract = config["feature_extraction"]["layers"]
 dir_name = compose_dir_name(config_path, model_name, time_window, crop_size, center_crop)
 feature_path = "tmp/features/" + dir_name + "_feat" 
 fx = FeatureExtractor(model=model, device='cpu') 
+all_layers = fx.get_all_layers()
+with open("vit_layers", 'w') as f:
+    json.dump(all_layers, f)
+
 fx.extract(data_path=stimuli_path, save_path = feature_path, layers_to_extract=layers_to_extract, consolidate_per_layer=False)
 
 # rdm creation
@@ -117,4 +121,3 @@ if analysis_config["reg"].pop("execute"):
     combined_meta = {metadata_key.encode(): metadata_json.encode(), **original_meta}
     eval_table = eval_table.replace_schema_metadata(combined_meta)
     pq.write_table(eval_table, join(results_dir,'eval_df_reg.parquet'))
-
