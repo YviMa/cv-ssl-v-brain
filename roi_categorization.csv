@@ -1,0 +1,25 @@
+,ROI,processing_stage,stream,selectivity
+0,V1v,early,ventral,basic features
+1,V1d,early,dorsal,basic features
+2,V2v,early,ventral,basic features
+3,V2d,early,dorsal,basic features
+4,V3v,early,ventral,basic features
+5,V3d,early,dorsal,basic features
+6,hV4,mid,ventral,basic features
+7,EBA,late,ventral,body-selective
+8,FBA-1,late,ventral,body-selective
+9,FBA-2,late,ventral,body-selective
+10,mTL-bodies,late,ventral,body-selective
+11,OFA,mid,ventral,face-selective
+12,FFA-1,late,ventral,face-selective
+13,FFA-2,late,ventral,face-selective
+14,mTL-faces,early,ventral,face-selective
+15,aTL-faces,early,ventral,face-selective
+16,OPA,late,dorsal,place-selective
+17,PPA,late,ventral,place-selective
+18,RSC,late,dorsal,place-selective
+19,OWFA,mid,ventral,word-selective
+20,VWFA-1,late,ventral,word-selective
+21,VWFA-2,late,ventral,word-selective
+22,mfs-words,late,ventral,word-selective
+23,mTL-words,early,ventral,word-selective
