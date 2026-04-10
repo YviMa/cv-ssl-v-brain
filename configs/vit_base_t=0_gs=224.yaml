@@ -1,0 +1,38 @@
+data:
+    data_dir: "../data/Algonauts23_shared_Net2Brain"
+    stimuli_path: "../data/Algonauts23_shared_Net2Brain/images"
+    brain_rdms: "../data/Algonauts23_shared_Net2Brain/brain_data"
+
+model:
+    directory: "../data/central_vision_ssl"
+    name: "vit_base"
+    time_window: 0
+    crop_size: 224
+    center_crop: False
+
+feature_extraction:
+    layers:
+        - "backbone.blocks.1"
+        - "backbone.blocks.2"
+        - "backbone.blocks.3"
+        - "backbone.blocks.4"
+        - "backbone.blocks.5"
+        - "backbone.blocks.6"
+        - "backbone.blocks.7"
+        - "backbone.blocks.8"
+        - "backbone.blocks.9"
+        - "backbone.blocks.10"
+        - "backbone.blocks.11"
+
+analysis:
+    rsa:
+        execute: True
+        distance_metric: "spearman"
+    reg: 
+        execute: True
+        n_folds: 3 # stick to net2brain defaults for now
+        n_components: 100
+        trn_tst_split: 0.8
+        batch_size: 100
+
+
