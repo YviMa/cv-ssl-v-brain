@@ -1,7 +1,7 @@
 import hashlib
 import pandas as pd
 import numpy as np
-from scipy.stats import ttest_1samp, sem
+from scipy.stats import ttest_1samp, sem, ttest_rel, false_discovery_control
 from os import listdir
 
 def compose_model_dir(model_name, time_window, crop_size, center_crop=False):
@@ -108,3 +108,50 @@ def fix_naming(dataframe):
     df["Layer"] = new_layers
 
     return df
+
+def agg_ttest(x):
+    y=x.reset_index(drop=True)
+    return ttest_rel(y.iloc[0],y.iloc[1])[1]
+
+def pool_lhrh(dataframe1):
+    """
+    Pools left- and right- hand side of ROIs and selects best layer each.
+
+    Returns: Dataframe with one row per ROI containing best layers for both models and correlations.
+    """
+    roi_list_lh = dataframe1["ROI"].apply(lambda x: x.split("_lh")[0]).unique()
+    roi_list_rh = dataframe1["ROI"].apply(lambda x: x.split("_rh")[0]).unique()
+    intersect_roi = list(np.intersect1d(roi_list_lh, roi_list_rh))
+    # saw that for vit_base_t=0_gs_112 we can't pool V3d lh/rh due to significant difference
+    # therefore can't pool for any model for comparison
+    intersect_roi.remove("V3d")
+
+    pool = dataframe1.copy()
+
+    pool["ROI_non_handed"] = pool["ROI"].apply(lambda x: x[:-3])
+    pool = pool.loc[pool["ROI_non_handed"].isin(intersect_roi),:]
+    pool= pool.groupby(["ROI_non_handed", "Layer"])[["R", "%R", "R_array","LNC", "UNC"]].agg('mean')
+    pool.reset_index(inplace=True)
+    pool.insert(2, "Model", dataframe1.loc[0,"Model"])
+    pool.rename(columns={"ROI_non_handed":"ROI"}, inplace=True)
+
+    no_pool = dataframe1.copy()
+    no_pool["ROI_non_handed"] = no_pool["ROI"].apply(lambda x: x[:-3])
+    no_pool=no_pool.loc[~no_pool["ROI_non_handed"].isin(intersect_roi),:]
+    no_pool.drop(["ROI_non_handed", "Significance", "SEM"], axis=1, inplace=True)
+    
+    pooled=pd.concat([pool, no_pool])
+    pooled["SEM"]=pooled["R_array"].apply(sem)
+    pooled["Significance"]=pooled["R_array"].apply(lambda x: ttest_1samp(x,0)[1])
+    pooled.reset_index(inplace=True, drop=True)
+
+    return pooled
+
+def strip_hash(x):
+    splits = x.split("_")
+    if len(splits)==4 or len(splits)==6:
+        splits.pop(3)
+    elif len(splits)==5 or len(splits)==7:
+        splits.pop(4)
+    splits = [s + "_" for s in splits[:-1]] + [splits[-1]]
+    return "".join(splits)
