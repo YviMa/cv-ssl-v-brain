@@ -2,7 +2,9 @@ import hashlib
 import pandas as pd
 import numpy as np
 from scipy.stats import ttest_1samp, sem, ttest_rel, false_discovery_control
+import os
 from os import listdir
+from net2brain.rdm.feature_iterator import nsorted
 
 def compose_model_dir(model_name, time_window, crop_size, center_crop=False):
     '''
@@ -42,14 +44,37 @@ def get_shared_rois_nsd():
     '''
     Retreives the names of the ROIs that are available for all 8 subjects
     '''
-    sub01_path = '../data/Algonauts23_shared_Net2Brain/subj01/rdms'
+    sub01_path = '../../data/Algonauts23_shared_Net2Brain/subj01/rdms'
     file_list = listdir(sub01_path)
     roi_names = []
     for filename in file_list:
         roi_names.append(filename.split("_subj01")[0])
 
     for subj in range(2, 9):
-        subj_path = '../data/Algonauts23_shared_Net2Brain/subj0' + str(subj)+'/rdms'
+        subj_path = '../../data/Algonauts23_shared_Net2Brain/subj0' + str(subj)+'/rdms'
+        file_list = listdir(subj_path)
+        subj_roi_names = []
+        for filename in file_list:
+            subj_roi_names.append(filename.split("_subj0")[0])
+        intersection = list(set(subj_roi_names) & set(roi_names))
+        roi_names[:] = intersection
+    
+    return roi_names
+
+def get_shared_rois_nsd_all(subj_numbers):
+    '''
+    Retreives names of the ROIs that are available for the 4 subjects that viewed the full
+    set of stimuli in the complete NSD data.
+    subj_numbers must be a list of ints
+    '''
+    first_path = '../../data/DatasetAlgonauts_NSD/Algonauts23_Net2Brain/subj0'+str(subj_numbers[0])+'/rois'
+    file_list = listdir(first_path)
+    roi_names = []
+    for filename in file_list:
+        roi_names.append(filename.split("_subj01")[0])
+
+    for subj in subj_numbers[1:]:
+        subj_path = '../../data/DatasetAlgonauts_NSD/Algonauts23_Net2Brain/subj0' + str(subj)+'/rois'
         file_list = listdir(subj_path)
         subj_roi_names = []
         for filename in file_list:
@@ -155,3 +180,23 @@ def strip_hash(x):
         splits.pop(4)
     splits = [s + "_" for s in splits[:-1]] + [splits[-1]]
     return "".join(splits)
+
+def create_subset_mask_872(folder, all_img_dir):
+    '''
+    Creates mask for the full 872 image brain RDMs to select only the rows and columns that correspond 
+    to the stimuli in the provided folder.
+
+    Returns: np.array of bool
+    '''
+    file_list = listdir(folder)
+    file_list = [x for x in file_list if os.path.isfile(os.path.join(folder, x))]
+
+    total_img_list = listdir(all_img_dir)
+    total_img_list = [x for x in total_img_list if os.path.isfile(os.path.join(all_img_dir, x))]
+
+    file_list_sorted = nsorted(file_list)
+    total_img_list_sorted = nsorted(total_img_list)
+
+    mask = [1 if file in file_list_sorted else 0 for file in total_img_list_sorted]
+
+    return np.array(mask).astype('bool')
