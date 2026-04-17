@@ -65,13 +65,13 @@ rdm_creator.create_rdms(feature_path=feature_path, save_path=rdm_path, save_form
 # evaluation
 brain_rdms = data_config["brain_rdms"] 
 analysis_config = config["analysis"]
-results_dir = "results/" + dir_name
+results_dir = data_config["results_dir"] + dir_name
 makedirs(results_dir, exist_ok=True)
 
 with open(join(results_dir, "config.yaml"), 'w') as f:
     yaml.dump(config, f)
 
-metadata = {**model_config, "layers": layers_to_extract}
+metadata = {**model_config, "layers": layers_to_extract, "category": data_config["category"]}
 metadata_key = 'custom_meta'
 
 if analysis_config["rsa"].pop("execute"):
