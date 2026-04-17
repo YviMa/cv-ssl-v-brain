@@ -19,7 +19,7 @@ from matplotlib.colors import ListedColormap
 
 
 available_dirs = os.listdir('results')
-'''
+
 for dir in available_dirs:
     print(dir)
     if dir=="model_comparison":
@@ -210,6 +210,9 @@ for dir in available_dirs:
     plt.savefig(os.path.join("results",dir, "reg_Mean_R_pooled.pdf"), format='PDF', bbox_inches='tight')
 
     table = pd.pivot_table(reg_pooled_fdr, values="R", columns="Layer", index="ROI")
+    if reg_pooled_fdr.loc[0,"Model"].startswith("vit"):
+        table.columns = pd.Series([table.columns[i].split(".")[2] for i in range(len(table.columns))]).astype("int32")
+    table.sort_index(axis=1, inplace=True)
     sorted=table.max(axis=1).sort_values(ascending=False)
     table_sorted = table.loc[sorted.index,:]
 
@@ -472,6 +475,8 @@ for dir in available_dirs:
     fig = plt.figure(figsize=(12,15))
     gs = GridSpec(3, 2, figure=fig, hspace=0.3)
 
+    if plot_all_layers.loc[0,"Model"].iloc[0].startswith("vit"):
+        plot_all_layers["Layer"] = plot_all_layers["Layer"].apply(lambda x: x.split(".")[2]).astype("int32")
     ax1 = fig.add_subplot(gs[0, :])
     sns.barplot(data=plot_all_layers.loc[plot_all_layers["selectivity"]=="basic features",:], x="Layer", y="R_array", hue="ROI", ax=ax1, capsize=0.5)
     ax1.legend(frameon=True)
@@ -514,7 +519,6 @@ for dir in available_dirs:
 
     plt.suptitle(f"R across Layers for all ROIs", fontsize=18, y=0.92)
     plt.savefig(os.path.join("results",dir, "reg_all_layers.pdf"), format='PDF', bbox_inches='tight')
-'''
 
 
 
@@ -528,7 +532,7 @@ for roi in reg_comp["ROI"].unique():
     roi_df.reset_index(inplace=True, drop=True)
     # fdr correct within ROI
     roi_df["Significance"]=false_discovery_control(roi_df["Significance"])
-
+    roi_df["condition_tuples"] = list(zip(roi_df["model_name"], roi_df["time_window"], roi_df["crop_size"], roi_df["center_crop"]))
     M = np.zeros((26,26))
     sign_corr = np.zeros((26,26))
     for i, row_1 in roi_df.iterrows():
@@ -540,9 +544,14 @@ for roi in reg_comp["ROI"].unique():
     p_value_FDR = false_discovery_control(M[tril_idx], axis=None)
     M=np.zeros((26,26))
     M[tril_idx[0], tril_idx[1]]=p_value_FDR
-    p_value_df=pd.DataFrame(M, index=roi_df["Model"], columns=roi_df["Model"])
+    p_value_df=pd.DataFrame(M, index=roi_df["condition_tuples"], columns=roi_df["condition_tuples"])
     p_value_df.mask(p_value_df>=0.05, 0.051, inplace=True)
     p_value_df=p_value_df*sign_corr
+
+    p_value_df.index = pd.MultiIndex.from_tuples(p_value_df.index)
+    p_value_df.columns = pd.MultiIndex.from_tuples(p_value_df.columns)
+    p_value_df = p_value_df.sort_index(axis=0, level=[0, 1, 2, 3])   # rows
+    p_value_df = p_value_df.sort_index(axis=1, level=[0, 1, 2, 3])
 
     colors1 = plt.cm.Blues(np.linspace(0, 0.8, 6))
     colors1[0,:]=[0.6, 0.6, 0.6, 1]
@@ -555,9 +564,17 @@ for roi in reg_comp["ROI"].unique():
     palette = sns.color_palette("coolwarm", n_colors=8)
     fig, ax = plt.subplots(figsize=(14,10))
     sns.heatmap(p_value_df, annot=False, fmt=".2f", cmap=mymap, cbar=True, ax=ax, linewidths=0.5, vmin=-0.06, vmax=0.06, mask=mask)
-    model_labels = pd.Series(p_value_df.index).apply(strip_hash).to_list()
-    ax.set_xticklabels(model_labels, rotation=45, ha='right', fontsize=12)
-    ax.set_yticklabels(model_labels, fontsize=12)
+    def create_model_labels(cond_tuple):
+        if cond_tuple[3]==False:
+            return f"{cond_tuple[0]}_t={cond_tuple[1]}_gs={cond_tuple[2]}"
+        else:
+            return f"{cond_tuple[0]}_t={cond_tuple[1]}_gs={cond_tuple[2]}"+"_center_crop"
+    model_labels_x = pd.Series(p_value_df.index.to_series().apply(create_model_labels))
+    model_labels_y = pd.Series(p_value_df.columns.to_series().apply(create_model_labels))
+    ax.set_xticklabels(model_labels_x, rotation=45, ha='right', fontsize=12)
+    ax.set_yticklabels(model_labels_y, fontsize=12)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
     cbar = ax.collections[0].colorbar
     cbar.set_label('p-value', rotation=0, labelpad=15)
     cbar_ticklabels = list(np.round(np.arange(-0.050, 0.051, 0.01),2))
@@ -571,12 +588,14 @@ for roi in reg_comp["ROI"].unique():
     roi_df_expl = roi_df.sort_values("R")
     roi_df_expl = roi_df_expl.explode("R_array")
     roi_df_expl.reset_index(inplace=True, drop=True)
+    roi_df_expl.sort_values(["model_name", "time_window", "crop_size", "center_crop"], inplace=True)
 
     palette = sns.color_palette('pastel')
     fig, ax = plt.subplots(figsize=(16,6))
     sns.barplot(x="Model", y="R_array", color=palette[0], data=roi_df_expl, errorbar='se', capsize=0.2, errwidth=1)
 
     models=roi_df_expl.index.unique()
+    model_labels = pd.Series(roi_df_expl["Model"].unique()).apply(strip_hash).to_list()
     x = np.arange(len(model_labels))
     y = roi_df_expl.groupby("Model", sort=False)["R"].agg("first")+0.04
     y.reset_index(inplace=True, drop=True)
