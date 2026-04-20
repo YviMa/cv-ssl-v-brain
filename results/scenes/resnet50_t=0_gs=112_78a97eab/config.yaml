@@ -1,0 +1,27 @@
+analysis:
+  reg:
+    batch_size: 100
+    execute: true
+    n_components: 100
+    n_folds: 3
+    trn_tst_split: 0.8
+  rsa:
+    distance_metric: spearman
+    execute: true
+data:
+  brain_rdms: ../../data/Algonauts23_shared_Net2Brain/scenes/brain_data/
+  category: scenes
+  data_dir: ../../data/Algonauts23_shared_Net2Brain/scenes
+  results_dir: results/scenes/
+  stimuli_path: ../../data/Algonauts23_shared_Net2Brain/scenes/images/
+feature_extraction:
+  layers:
+  - backbone.layer1
+  - backbone.layer2
+  - backbone.layer3
+  - backbone.layer4
+model:
+  center_crop: false
+  crop_size: 112
+  name: resnet50
+  time_window: 0
