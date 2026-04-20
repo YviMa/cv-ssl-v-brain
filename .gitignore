@@ -18,3 +18,5 @@ __pycache__/
 *.pdf
 *.png
 .gitconfig
+*.sh
+scratch/
