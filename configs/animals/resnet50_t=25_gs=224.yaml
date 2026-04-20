@@ -1,14 +1,14 @@
 data:
-    data_dir: "../../data/Algonauts23_shared_Net2Brain/scenes"
-    stimuli_path: "../../data/Algonauts23_shared_Net2Brain/scenes/images/"
-    brain_rdms: "../../data/Algonauts23_shared_Net2Brain/scenes/brain_data/"
-    results_dir: "results/scenes/"
-    category: "scenes"
+    data_dir: "../../data/Algonauts23_shared_Net2Brain/animals"
+    stimuli_path: "../../data/Algonauts23_shared_Net2Brain/animals/images/"
+    brain_rdms: "../../data/Algonauts23_shared_Net2Brain/animals/brain_data/"
+    results_dir: "results/animals/"
+    category: "animals"
 
 model:
     directory: "../../data/central_vision_ssl"
     name: "resnet50"
-    time_window: 0
+    time_window: 25
     crop_size: 224
     center_crop: False
 

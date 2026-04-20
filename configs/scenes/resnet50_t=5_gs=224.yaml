@@ -8,7 +8,7 @@ data:
 model:
     directory: "../../data/central_vision_ssl"
     name: "resnet50"
-    time_window: 0
+    time_window: 5
     crop_size: 224
     center_crop: False
 

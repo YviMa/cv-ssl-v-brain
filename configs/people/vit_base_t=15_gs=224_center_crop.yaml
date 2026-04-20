@@ -7,17 +7,24 @@ data:
 
 model:
     directory: "../../data/central_vision_ssl"
-    name: "resnet50"
-    time_window: 0
+    name: "vit_base"
+    time_window: 15
     crop_size: 224
-    center_crop: False
+    center_crop: True
 
 feature_extraction:
     layers:
-        - "backbone.layer1"
-        - "backbone.layer2"
-        - "backbone.layer3"
-        - "backbone.layer4"
+        - "backbone.blocks.1"
+        - "backbone.blocks.2"
+        - "backbone.blocks.3"
+        - "backbone.blocks.4"
+        - "backbone.blocks.5"
+        - "backbone.blocks.6"
+        - "backbone.blocks.7"
+        - "backbone.blocks.8"
+        - "backbone.blocks.9"
+        - "backbone.blocks.10"
+        - "backbone.blocks.11"
 
 analysis:
     rsa:

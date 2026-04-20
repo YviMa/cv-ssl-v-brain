@@ -8,8 +8,8 @@ data:
 model:
     directory: "../../data/central_vision_ssl"
     name: "resnet50"
-    time_window: 0
-    crop_size: 224
+    time_window: 15
+    crop_size: 448
     center_crop: False
 
 feature_extraction:
@@ -25,9 +25,9 @@ analysis:
         distance_metric: "spearman"
     reg: 
         execute: True
-        n_folds: 3 
-        n_components: 90
-        trn_tst_split: 0.9
+        n_folds: 3 # stick to net2brain defaults for now
+        n_components: 100
+        trn_tst_split: 0.8
         batch_size: 100
 
 
