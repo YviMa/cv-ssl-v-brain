@@ -513,7 +513,7 @@ for dir in available_dirs:
     sns.barplot(data=plot_all_layers.loc[plot_all_layers["selectivity"]=="word-selective",:], x="Layer", y="R_array", hue="ROI", ax=ax5, capsize=0.5)
     ax5.legend(frameon=True)
     ax5.set_xticklabels(np.arange(1,12))
-    ax5.set_title("Place-selective ROIs")
+    ax5.set_title("Word-selective ROIs")
     ax5.set_ylabel("R")
     ax5.set_ylim(0,0.5)
 
