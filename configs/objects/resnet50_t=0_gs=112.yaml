@@ -1,9 +1,9 @@
 data:
-    data_dir: "../../data/Algonauts23_shared_Net2Brain/animals"
-    stimuli_path: "../../data/Algonauts23_shared_Net2Brain/animals/images/"
-    brain_rdms: "../../data/Algonauts23_shared_Net2Brain/animals/brain_data/"
-    results_dir: "results/animals/"
-    category: "animals"
+    data_dir: "../../data/Algonauts23_shared_Net2Brain/objects"
+    stimuli_path: "../../data/Algonauts23_shared_Net2Brain/objects/images/"
+    brain_rdms: "../../data/Algonauts23_shared_Net2Brain/objects/brain_data/"
+    results_dir: "results/objects/"
+    category: "objects"
 
 model:
     directory: "../../data/central_vision_ssl"
