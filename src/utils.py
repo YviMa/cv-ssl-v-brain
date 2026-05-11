@@ -1,6 +1,7 @@
 import hashlib
 import pandas as pd
 import numpy as np
+import pyarrow.parquet as pq
 from scipy.stats import ttest_1samp, sem, ttest_rel, false_discovery_control
 import os
 from os import listdir
@@ -138,7 +139,32 @@ def agg_ttest(x):
     y=x.reset_index(drop=True)
     return ttest_rel(y.iloc[0],y.iloc[1])[1]
 
-def pool_lhrh(dataframe1):
+def find_non_poolable(results_dir, file_name):
+    dir_list = [os.path.join(results_dir, dir) for dir in os.listdir(results_dir) if os.path.isdir(os.path.join(results_dir, dir))]
+    non_poolable_all = []
+    for dir in dir_list:
+        if dir == os.path.join(results_dir, "model_comparison"):
+            continue
+        table = pq.read_table(os.path.join(dir, file_name), partitioning=None)
+        df = table.to_pandas()
+        df.reset_index(inplace=True, drop=True)
+        roi_list_lh = df["ROI"].apply(lambda x: x.split("_lh")[0]).unique()
+        roi_list_rh = df["ROI"].apply(lambda x: x.split("_rh")[0]).unique()
+        intersect_roi = np.intersect1d(roi_list_lh, roi_list_rh)
+
+        pool_or_not = df.copy()
+        pool_or_not["ROI_non_handed"] = pool_or_not["ROI"].apply(lambda x: x[:-3])
+        pool_or_not = pool_or_not.loc[pool_or_not["ROI_non_handed"].isin(intersect_roi),:]
+        pool_or_not = pool_or_not.groupby(["ROI_non_handed", "Layer"])["R_array"].agg(agg_ttest)
+        pool_or_not = pool_or_not.reset_index()
+        pool_or_not=pool_or_not.rename(columns={"R_array": "p-value"})
+        pool_or_not["p-value_FDR"]=false_discovery_control(pool_or_not["p-value"])
+        non_poolable=pool_or_not.loc[pool_or_not["p-value_FDR"]<0.05,"ROI_non_handed"].to_list()
+        non_poolable_all+=non_poolable
+    return set(non_poolable_all)
+
+
+def pool_lhrh(dataframe1, exclude=[]):
     """
     Pools left- and right- hand side of ROIs and selects best layer each.
 
@@ -149,8 +175,8 @@ def pool_lhrh(dataframe1):
     intersect_roi = list(np.intersect1d(roi_list_lh, roi_list_rh))
     # saw that for vit_base_t=0_gs_112 we can't pool V3d lh/rh due to significant difference
     # therefore can't pool for any model for comparison
-    intersect_roi.remove("V3d")
-
+    #intersect_roi.remove("V3d")
+    intersect_roi[:] = [x for x in intersect_roi if x not in exclude]
     pool = dataframe1.copy()
 
     pool["ROI_non_handed"] = pool["ROI"].apply(lambda x: x[:-3])
