@@ -6,7 +6,7 @@ import pandas as pd
 from matplotlib.gridspec import GridSpec
 import seaborn as sns
 import yaml
-from plotting import Plotter
+from plotting_scripts.plotting import Plotter
 
 
 
