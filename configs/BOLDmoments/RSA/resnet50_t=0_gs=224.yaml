@@ -1,0 +1,35 @@
+data:
+    data_dir: "../../data/BOLDmoments"
+    stimuli_path: "../../data/BOLDmoments/stimuli_combined"
+    brain_rdms: "../../data/BOLDmoments/rdms"
+    results_dir: "results/BOLDmoments/"
+    category: None
+model:
+    directory: "../../data/central_vision_ssl"
+    netset: cv_ssl
+    name: "resnet50"
+    time_window: 0
+    crop_size: 224
+    center_crop: False
+
+feature_extraction:
+    layers:
+        - "backbone.layer1"
+        - "backbone.layer2"
+        - "backbone.layer3"
+        - "backbone.layer4"
+    extraction_kwargs: {"pick_frames": 5, "agg_frames": null}
+
+analysis:
+    rsa:
+        execute: True
+        distance_metric: "spearman"
+        kwargs: {}
+    reg: 
+        execute: False
+        n_folds: 3 # stick to net2brain defaults for now
+        n_components: 100
+        trn_tst_split: 0.8
+        batch_size: 100
+
+
