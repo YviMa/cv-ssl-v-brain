@@ -428,7 +428,7 @@ class AllModelsHeatmap(ModelPlot):
         super().__init__()
 
     def format(self, dataframe):
-        df = reg_comp.sort_values(by="R")
+        df = dataframe.sort_values(by="R")
         df["condition_tuple"]=list(zip(df["model_name"], df["time_window"], df["crop_size"], df["center_crop"]))
         df = pd.pivot_table(data=df, values="R", index="ROI", columns="condition_tuple", sort=False)
         df.columns = pd.MultiIndex.from_tuples(df.columns)
