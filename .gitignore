@@ -21,3 +21,4 @@ __pycache__/
 *.sh
 scratch/
 settings.json
+run_in_bulk.py
