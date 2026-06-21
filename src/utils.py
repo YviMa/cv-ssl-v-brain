@@ -85,6 +85,29 @@ def get_shared_rois_nsd_all(subj_numbers):
     
     return roi_names
 
+def get_shared_rois_BOLDmoments():
+    '''
+    Retreives the names of the ROIs that are available for all 10
+    '''
+    sub01_path = "../../data/BOLDmoments/ds005165/derivatives/versionB/MNI152/prepared_allvoxel_pkl/sub-01"
+    file_list = listdir(sub01_path)
+    roi_names = []
+    for filename in file_list:
+        roi_names.append(filename.split("roi-")[1].split("_")[0])
+    for subj in range(2, 11):
+        if subj==10: 
+            subj_path = "../../data/BOLDmoments/ds005165/derivatives/versionB/MNI152/prepared_allvoxel_pkl/sub-10"
+        else:
+            subj_path = "../../data/BOLDmoments/ds005165/derivatives/versionB/MNI152/prepared_allvoxel_pkl/sub-0" + str(subj)
+        file_list = listdir(subj_path)
+        subj_roi_names = []
+        for filename in file_list:
+            subj_roi_names.append(filename.split("roi-")[1].split("_")[0])
+        intersection = list(set(subj_roi_names) & set(roi_names))
+        roi_names[:] = intersection
+    
+    return roi_names
+
 def r_list(a):
     # helper function for brining encoding dataframe to same format as RSA dataframe
     return list(a)
@@ -188,6 +211,37 @@ def pool_lhrh(dataframe1, exclude=[]):
 
     no_pool = dataframe1.copy()
     no_pool["ROI_non_handed"] = no_pool["ROI"].apply(lambda x: x[:-3])
+    no_pool=no_pool.loc[~no_pool["ROI_non_handed"].isin(intersect_roi),:]
+    no_pool.drop(["ROI_non_handed", "Significance", "SEM"], axis=1, inplace=True)
+    
+    pooled=pd.concat([pool, no_pool])
+    pooled["SEM"]=pooled["R_array"].apply(sem)
+    pooled["Significance"]=pooled["R_array"].apply(lambda x: ttest_1samp(x,0)[1])
+    pooled.reset_index(inplace=True, drop=True)
+
+    return pooled
+
+def pool_lhrh_BOLDmoments(dataframe1):
+    """
+    Pools left- and right- hand side of ROIs and selects best layer each.
+
+    Returns: Dataframe with one row per ROI containing best layers for both models and correlations.
+    """
+    roi_list_lh = dataframe1["ROI"].apply(lambda x: x.split("l")[-1]).unique()
+    roi_list_rh = dataframe1["ROI"].apply(lambda x: x.split("r")[-1]).unique()
+    intersect_roi = list(np.intersect1d(roi_list_lh, roi_list_rh))
+
+    pool = dataframe1.copy()
+
+    pool["ROI_non_handed"] = pool["ROI"].apply(lambda x: x.split("l")[-1].split("r")[-1])
+    pool = pool.loc[pool["ROI_non_handed"].isin(intersect_roi),:]
+    pool= pool.groupby(["ROI_non_handed", "Layer"])[["R", "%R", "R_array","LNC", "UNC"]].agg('mean')
+    pool.reset_index(inplace=True)
+    pool.insert(2, "Model", dataframe1.loc[0,"Model"])
+    pool.rename(columns={"ROI_non_handed":"ROI"}, inplace=True)
+
+    no_pool = dataframe1.copy()
+    no_pool["ROI_non_handed"] = no_pool["ROI"].apply(lambda x: x.split("l")[-1].split("r")[-1])
     no_pool=no_pool.loc[~no_pool["ROI_non_handed"].isin(intersect_roi),:]
     no_pool.drop(["ROI_non_handed", "Significance", "SEM"], axis=1, inplace=True)
     
