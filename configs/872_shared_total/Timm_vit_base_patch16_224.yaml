@@ -1,0 +1,41 @@
+data:
+    data_dir: "../../data/Algonauts23_shared_Net2Brain"
+    stimuli_path: "../../data/Algonauts23_shared_Net2Brain/images"
+    brain_rdms: "../../data/Algonauts23_shared_Net2Brain/brain_data"
+    results_dir: "results/872_shared_total/"
+    category: None
+
+model:
+    netset: "Timm"
+    directory: "tmp/models/"
+    name: "vit_base_patch16_224"
+    time_window: None 
+    crop_size: None 
+    center_crop: None 
+
+feature_extraction:
+    layers:
+        - "model.blocks.1"
+        - "model.blocks.2"
+        - "model.blocks.3"
+        - "model.blocks.4"
+        - "model.blocks.5"
+        - "model.blocks.6"
+        - "model.blocks.7"
+        - "model.blocks.8"
+        - "model.blocks.9"
+        - "model.blocks.10"
+        - "model.blocks.11"
+
+analysis:
+    rsa:
+        execute: True
+        distance_metric: "spearman"
+    reg: 
+        execute: True
+        n_folds: 3 # stick to net2brain defaults for now
+        n_components: 100
+        trn_tst_split: 0.8
+        batch_size: 100
+
+

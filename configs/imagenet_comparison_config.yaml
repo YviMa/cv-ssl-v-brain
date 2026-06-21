@@ -1,0 +1,10 @@
+- results/872_shared_total/moco_resnet50_imagenet
+- results/872_shared_total/moco_vit_base_imagenet
+- results/872_shared_total/Clip_RN50
+- results/872_shared_total/Clip_ViT-B_16
+- results/872_shared_total/Standard_ResNet50
+- results/872_shared_total/Timm_vit_base_patch16_224
+- results/872_shared_total/resnet50_t=0_gs=224_c55ac28d
+- results/872_shared_total/resnet50_t=15_gs=224_7c077e46
+- results/872_shared_total/vit_base_t=0_gs=224_29bdaddc
+- results/872_shared_total/vit_base_t=15_gs=224_6c762d28
