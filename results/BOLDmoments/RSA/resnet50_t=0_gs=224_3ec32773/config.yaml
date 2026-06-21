@@ -1,0 +1,32 @@
+analysis:
+  reg:
+    batch_size: 100
+    execute: false
+    n_components: 100
+    n_folds: 3
+    trn_tst_split: 0.8
+  rsa:
+    distance_metric: spearman
+    execute: true
+    kwargs: {}
+data:
+  brain_rdms: ../../data/BOLDmoments/rdms
+  category: None
+  data_dir: ../../data/BOLDmoments
+  results_dir: results/BOLDmoments/
+  stimuli_path: ../../data/BOLDmoments/stimuli_combined
+feature_extraction:
+  extraction_kwargs:
+    agg_frames: null
+    pick_frames: 5
+  layers:
+  - backbone.layer1
+  - backbone.layer2
+  - backbone.layer3
+  - backbone.layer4
+model:
+  center_crop: false
+  crop_size: 224
+  name: resnet50
+  netset: cv_ssl
+  time_window: 0

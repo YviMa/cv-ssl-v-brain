@@ -1,0 +1,39 @@
+analysis:
+  reg:
+    batch_size: 100
+    execute: false
+    n_components: 100
+    n_folds: 3
+    trn_tst_split: 0.8
+  rsa:
+    distance_metric: spearman
+    execute: true
+    kwargs: {}
+data:
+  brain_rdms: ../../data/BOLDmoments/rdms
+  category: None
+  data_dir: ../../data/BOLDmoments
+  results_dir: results/BOLDmoments/
+  stimuli_path: ../../data/BOLDmoments/stimuli_combined
+feature_extraction:
+  extraction_kwargs:
+    agg_frames: null
+    pick_frames: 5
+  layers:
+  - backbone.blocks.1
+  - backbone.blocks.2
+  - backbone.blocks.3
+  - backbone.blocks.4
+  - backbone.blocks.5
+  - backbone.blocks.6
+  - backbone.blocks.7
+  - backbone.blocks.8
+  - backbone.blocks.9
+  - backbone.blocks.10
+  - backbone.blocks.11
+model:
+  center_crop: true
+  crop_size: 224
+  name: vit_base
+  netset: cv_ssl
+  time_window: 15

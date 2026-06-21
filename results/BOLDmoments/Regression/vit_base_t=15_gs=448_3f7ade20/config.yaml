@@ -1,0 +1,30 @@
+analysis:
+  reg:
+    batch_size: 100
+    custom_trn_tst: 1000
+    execute: true
+    n_components: 100
+    n_folds: 1
+    trn_tst_split: custom
+  rsa:
+    distance_metric: spearman
+    execute: false
+    kwargs: {}
+data:
+  brain_rdms: ../../data/BOLDmoments/rdms
+  category: None
+  data_dir: ../../data/BOLDmoments/fmri
+  results_dir: results/BOLDmoments/Regression/
+  stimuli_path: ../../data/BOLDmoments/stimuli_combined
+feature_extraction:
+  extraction_kwargs:
+    agg_frames: null
+    pick_frames: 5
+  layers:
+  - backbone.blocks.11
+model:
+  center_crop: false
+  crop_size: 448
+  name: vit_base
+  netset: cv_ssl
+  time_window: 15

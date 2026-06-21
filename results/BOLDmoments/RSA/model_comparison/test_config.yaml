@@ -1,0 +1,4 @@
+- results/BOLDmoments/resnet50_t=0_gs=112_313ee068
+- results/BOLDmoments/resnet50_t=15_gs=224_fa0abeb6
+- results/BOLDmoments/vit_base_t=0_gs=112_2c0ae194
+- results/BOLDmoments/vit_base_t=15_gs=224_f75327b1
