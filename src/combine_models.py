@@ -17,16 +17,16 @@ parser.add_argument('--results_dir')
 args = parser.parse_args()
 
 run_all = args.a
-dir_list = args.config
+config = args.config
 results_dir = args.results_dir
 
 if run_all:
     dir_list = [os.path.join(results_dir, dir) for dir in os.listdir(results_dir) if os.path.isdir(os.path.join(results_dir, dir))]
     file_name = "model_comp_all.parquet"
 else:
-    with open(dir_list, 'r') as f:
+    with open(config, 'r') as f:
         dir_list = yaml.safe_load(f)
-    config_hash = hash_config(dir_list)
+    config_hash = hash_config(config)
     file_name = "model_comp_" + config_hash + ".parquet"
 
 non_poolable_reg = find_non_poolable(results_dir, "eval_df_reg.parquet")
@@ -52,9 +52,9 @@ for idx_1, dir_1 in enumerate(dir_list):
     rsa_df_1.reset_index(inplace=True, drop=True)
      
     rsa_df_1["model_name"] = meta_rsa_1["name"]
-    rsa_df_1["time_window"] = int(meta_rsa_1["time_window"])
-    rsa_df_1["crop_size"] = int(meta_rsa_1["crop_size"])
-    rsa_df_1["center_crop"] = meta_rsa_1["center_crop"]
+    rsa_df_1["time_window"] = int(meta_rsa_1["time_window"]) if meta_rsa_1["time_window"] !='None' else pd.NA
+    rsa_df_1["crop_size"] = int(meta_rsa_1["crop_size"]) if meta_rsa_1["crop_size"] !='None' else pd.NA
+    rsa_df_1["center_crop"] = meta_rsa_1["center_crop"] if isinstance(meta_rsa_1["center_crop"], bool) else pd.NA
 
     comp_dfs_rsa.append(rsa_df_1)
 
@@ -70,14 +70,17 @@ for idx_1, dir_1 in enumerate(dir_list):
     reg_df_1.reset_index(inplace=True, drop=True)
      
     reg_df_1["model_name"] = meta_reg_1["name"]
-    reg_df_1["time_window"] = int(meta_reg_1["time_window"])
-    reg_df_1["crop_size"] = int(meta_reg_1["crop_size"])
-    reg_df_1["center_crop"] = meta_reg_1["center_crop"]
+    reg_df_1["time_window"] = int(meta_reg_1["time_window"]) if meta_reg_1["time_window"] !='None' else pd.NA
+    reg_df_1["crop_size"] = int(meta_reg_1["crop_size"]) if meta_reg_1["crop_size"] !='None' else pd.NA
+    reg_df_1["center_crop"] = meta_reg_1["center_crop"] if isinstance(meta_reg_1["center_crop"], bool) else pd.NA
     comp_dfs_reg.append(reg_df_1)
 
 
 comp_rsa = pd.concat(comp_dfs_rsa, ignore_index=True)
 comp_reg = pd.concat(comp_dfs_reg, ignore_index=True)
+
+comp_rsa["center_crop"] = comp_rsa["center_crop"].astype('boolean')
+comp_reg["center_crop"] = comp_reg["center_crop"].astype('boolean')
 
 comp_rsa_table = pa.Table.from_pandas(comp_rsa)
 comp_reg_table = pa.Table.from_pandas(comp_reg)
