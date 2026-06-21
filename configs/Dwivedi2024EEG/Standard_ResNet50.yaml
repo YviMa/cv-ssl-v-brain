@@ -1,0 +1,34 @@
+data:
+    data_dir: "../../data/Dwivedi2024EEG"
+    stimuli_path: "../../data/Bonner2017/stimuli_data"
+    brain_rdms: "../../data/Dwivedi2024EEG/rdms"
+    results_dir: "results/Dwivedi2024EEG/"
+    category: None
+model:
+    netset: "Standard"
+    directory: "tmp/models/"
+    name: "ResNet50"
+    time_window: None 
+    crop_size: None 
+    center_crop: None 
+
+feature_extraction:
+    layers:
+        - "layer1"
+        - "layer2"
+        - "layer3"
+        - "layer4"
+
+analysis:
+    rsa:
+        execute: True
+        distance_metric: "spearman"
+        kwargs: {"timepoint_agg": False}
+    reg: 
+        execute: False
+        n_folds: 3 # stick to net2brain defaults for now
+        n_components: 100
+        trn_tst_split: 0.8
+        batch_size: 100
+
+
